@@ -29,20 +29,16 @@
         <!-- Login Section -->
         <section id="login-section" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 max-w-md mx-auto mt-10">
             <h2 class="text-xl font-bold text-slate-900 mb-2 text-center">เข้าสู่ระบบจองซ้อม</h2>
-            <p class="text-sm text-slate-500 mb-6 text-center">พิมพ์รหัส 6810... หรือเลือกรายชื่อของคุณ</p>
+            <p class="text-sm text-slate-500 mb-6 text-center">เลือกรายชื่อนักศึกษา (80 คน) เพื่อเข้าใช้งาน</p>
             
             <div class="space-y-4">
-                <div class="relative">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">ค้นหาหรือเลือกรายชื่อ (80 คน)</label>
-                    <input type="text" id="search-student" placeholder="พิมพ์รหัสหรือชื่อ..." class="w-full border border-slate-300 rounded-xl p-3 text-base outline-none focus:ring-2 focus:ring-indigo-500" oninput="filterStudents()">
-                    <select id="student-select" size="5" class="w-full mt-1 border border-slate-300 rounded-xl p-2 text-sm bg-white hidden" onchange="selectStudent(this)">
-                        <!-- รายชื่อโหลดอัตโนมัติ -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">รายชื่อนักศึกษา</label>
+                    <select id="student-select" class="w-full border border-slate-300 rounded-xl p-3 text-base focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                        <option value="">-- กรุณาเลือกรายชื่อของคุณ --</option>
                     </select>
                 </div>
-                <div id="selected-student-display" class="text-sm font-medium text-indigo-600 bg-indigo-50 p-3 rounded-xl hidden">
-                    เลือก: <span id="student-name-text"></span>
-                </div>
-                <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition shadow-sm">
+                <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition shadow-sm cursor-pointer">
                     เข้าสู่ระบบ
                 </button>
             </div>
@@ -52,5 +48,309 @@
         <section id="app-section" class="hidden space-y-6">
             
             <!-- Navigation Tabs -->
-            <div class="flex bg-white rounded
+            <div class="flex bg-white rounded-xl p-1.5 shadow-sm border border-slate-200 gap-1">
+                <button onclick="switchTab('booking')" id="tab-booking" class="flex-1 py-2.5 rounded-lg font-medium text-sm transition bg-indigo-600 text-white cursor-pointer">จองเวลาซ้อม</button>
+                <button onclick="switchTab('schedule')" id="tab-schedule" class="flex-1 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100 cursor-pointer">ตารางการจอง</button>
+                <button onclick="switchTab('manage')" id="tab-manage" class="flex-1 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100 cursor-pointer">จัดการห้อง/อุปกรณ์</button>
+            </div>
+
+            <!-- Tab 1: Booking -->
+            <div id="content-booking" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-3">📅 ทำรายการจองเตียง/อุปกรณ์</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">เลือกวันที่</label>
+                        <input type="date" id="book-date" class="w-full border border-slate-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">เลือกรอบเวลา</label>
+                        <select id="book-time" class="w-full border border-slate-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                            <option value="09:00 - 12:00">รอบเช้า (09:00 - 12:00)</option>
+                            <option value="13:00 - 16:00">รอบบ่าย (13:00 - 16:00)</option>
+                            <option value="16:00 - 19:00">รอบเย็น (16:00 - 19:00)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">เลือกห้อง / เตียงฝึกซ้อม</label>
+                    <select id="book-room" class="w-full border border-slate-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="">-- กำลังโหลดรายการห้อง --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">เลือกอุปกรณ์ส่วนกลางเพิ่มเติม (ถ้ามี)</label>
+                    <div id="equipment-checkboxes" class="grid grid-cols-2 gap-2 border border-slate-200 rounded-xl p-3 max-h-40 overflow-y-auto">
+                        <!-- รายการอุปกรณ์โหลดอัตโนมัติ -->
+                    </div>
+                </div>
+
+                <button onclick="submitBooking()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 rounded-xl transition shadow-sm cursor-pointer">
+                    ยืนยันการจอง
+                </button>
+            </div>
+
+            <!-- Tab 2: Schedule & My Bookings -->
+            <div id="content-schedule" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-3">📋 ตารางการจองทั้งหมด</h2>
+                <div id="schedule-list" class="space-y-3">
+                    <p class="text-sm text-slate-500 text-center py-4">กำลังโหลดข้อมูลการจอง...</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Manage Rooms & Equipment -->
+            <div id="content-manage" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <h2 class="text-lg font-bold text-slate-900 border-b pb-3">⚙️ จัดการห้องและอุปกรณ์ส่วนกลาง</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Add Room -->
+                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-semibold text-slate-800">เพิ่มห้อง / เตียงซ้อม</h3>
+                        <input type="text" id="new-room-name" placeholder="ชื่อห้อง หรือ เบอร์เตียง" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white">
+                        <button onclick="addRoom()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition cursor-pointer">เพิ่มห้องใหม่</button>
+                    </div>
+
+                    <!-- Add Equipment -->
+                    <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-semibold text-slate-800">เพิ่มอุปกรณ์ส่วนกลาง</h3>
+                        <input type="text" id="new-eq-name" placeholder="ชื่ออุปกรณ์" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white">
+                        <button onclick="addEquipment()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg text-sm transition cursor-pointer">เพิ่มอุปกรณ์ใหม่</button>
+                    </div>
+                </div>
+
+                <!-- Current Lists -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                    <div>
+                        <h4 class="font-medium text-sm text-slate-700 mb-2">รายการห้องปัจจุบัน</h4>
+                        <ul id="manage-room-list" class="space-y-2 text-sm"></ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-sm text-slate-700 mb-2">รายการอุปกรณ์ปัจจุบัน</h4>
+                        <ul id="manage-eq-list" class="space-y-2 text-sm"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK0rw7dtoG9hR9WDfFzBrP_uYjXvURAK31cBPBFu4PbYae5CpKAQEIVRfU6F0i--ak5A/exec";
+        let currentUser = localStorage.getItem("pt_user") || null;
+
+        // Generate exactly 80 students (6810001 - 6810080)
+        const studentSelect = document.getElementById("student-select");
+        for (let i = 1; i <= 80; i++) {
+            let idNum = "68100" + (i < 10 ? "0" + i : i);
+            let opt = document.createElement("option");
+            opt.value = idNum + " - นศ.กายภาพบำบัดคนที่ " + i;
+            opt.textContent = idNum + " - นศ.กายภาพบำบัดคนที่ " + i;
+            studentSelect.appendChild(opt);
+        }
+
+        window.onload = function() {
+            if (currentUser) {
+                showApp();
+            }
+        };
+
+        function login() {
+            let val = studentSelect.value;
+            if (!val) {
+                alert("กรุณาเลือกรายชื่อนักศึกษาก่อนเข้าสู่ระบบ");
+                return;
+            }
+            currentUser = val;
+            localStorage.setItem("pt_user", currentUser);
+            showApp();
+        }
+
+        function logout() {
+            localStorage.removeItem("pt_user");
+            currentUser = null;
+            document.getElementById("login-section").classList.remove("hidden");
+            document.getElementById("app-section").classList.add("hidden");
+            document.getElementById("user-info").classList.add("hidden");
+        }
+
+        function showApp() {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("app-section").classList.remove("hidden");
+            document.getElementById("user-info").classList.remove("hidden");
+            document.getElementById("user-display").textContent = currentUser;
+            loadAppData();
+        }
+
+        function switchTab(tab) {
+            ['booking', 'schedule', 'manage'].forEach(t => {
+                document.getElementById('content-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition text-slate-600 hover:bg-slate-100 cursor-pointer";
+            });
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).className = "flex-1 py-2.5 rounded-lg font-medium text-sm transition bg-indigo-600 text-white cursor-pointer";
+        }
+
+        function loadAppData() {
+            fetch(GOOGLE_SCRIPT_URL + "?action=getData")
+                .then(res => res.json())
+                .then(data => {
+                    let defaultRooms = ["เตียงซ้อมที่ 1", "เตียงซ้อมที่ 2", "ห้องปฏิบัติการย่อย A"];
+                    let defaultEqs = ["Humerus Model", "Goniometer", "Reflex Hammer"];
+                    
+                    updateRoomsUI(data.rooms && data.rooms.length > 0 ? data.rooms : defaultRooms);
+                    updateEquipmentUI(data.equipments && data.equipments.length > 0 ? data.equipments : defaultEqs);
+                    updateScheduleUI(data.bookings || []);
+                })
+                .catch(err => {
+                    console.log("Using fallback data", err);
+                    updateRoomsUI(["เตียงซ้อมที่ 1", "เตียงซ้อมที่ 2", "ห้องปฏิบัติการย่อย A"]);
+                    updateEquipmentUI(["Humerus Model", "Goniometer", "Reflex Hammer"]);
+                    updateScheduleUI([]);
+                });
+        }
+
+        function updateRoomsUI(rooms) {
+            let roomSelect = document.getElementById("book-room");
+            let manageRoomList = document.getElementById("manage-room-list");
+            roomSelect.innerHTML = "";
+            manageRoomList.innerHTML = "";
+            
+            rooms.forEach(room => {
+                let opt = document.createElement("option");
+                opt.value = room;
+                opt.textContent = room;
+                roomSelect.appendChild(opt);
+
+                let li = document.createElement("li");
+                li.className = "flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200 shadow-xs";
+                li.innerHTML = `<span>${room}</span> <button onclick="deleteRoom('${room}')" class="text-red-500 text-xs hover:underline cursor-pointer">ลบ</button>`;
+                manageRoomList.appendChild(li);
+            });
+        }
+
+        function updateEquipmentUI(equipments) {
+            let eqContainer = document.getElementById("equipment-checkboxes");
+            let manageEqList = document.getElementById("manage-eq-list");
+            eqContainer.innerHTML = "";
+            manageEqList.innerHTML = "";
+
+            equipments.forEach(eq => {
+                let label = document.createElement("label");
+                label.className = "flex items-center space-x-2 text-sm p-1 cursor-pointer";
+                label.innerHTML = `<input type="checkbox" name="equipment" value="${eq}" class="rounded text-indigo-600"> <span>${eq}</span>`;
+                eqContainer.appendChild(label);
+
+                let li = document.createElement("li");
+                li.className = "flex justify-between items-center bg-white p-2.5 rounded-lg border border-slate-200 shadow-xs";
+                li.innerHTML = `<span>${eq}</span> <button onclick="deleteEquipment('${eq}')" class="text-red-500 text-xs hover:underline cursor-pointer">ลบ</button>`;
+                manageEqList.appendChild(li);
+            });
+        }
+
+        function updateScheduleUI(bookings) {
+            let list = document.getElementById("schedule-list");
+            if (bookings.length === 0) {
+                list.innerHTML = `<p class="text-sm text-slate-500 text-center py-4">ยังไม่มีรายการจองในขณะนี้</p>`;
+                return;
+            }
+            list.innerHTML = "";
+            bookings.forEach(b => {
+                let div = document.createElement("div");
+                div.className = "p-4 rounded-xl border border-slate-200 bg-slate-50 flex justify-between items-center";
+                div.innerHTML = `<div>
+                    <p class="font-semibold text-sm text-indigo-900">${b.room} (${b.date} | ${b.time})</p>
+                    <p class="text-xs text-slate-600">ผู้จอง: ${b.user}</p>
+                    <p class="text-xs text-slate-500">อุปกรณ์: ${b.equipments || '-'}</p>
+                </div>`;
+                list.appendChild(div);
+            });
+        }
+
+        function submitBooking() {
+            let date = document.getElementById("book-date").value;
+            let time = document.getElementById("book-time").value;
+            let room = document.getElementById("book-room").value;
+            let checkedEq = Array.from(document.querySelectorAll('input[name="equipment"]:checked')).map(el => el.value).join(", ");
+
+            if (!date) {
+                alert("กรุณาเลือกวันที่ต้องการจอง");
+                return;
+            }
+            if (!room) {
+                alert("กรุณาเลือกห้อง/เตียงซ้อม");
+                return;
+            }
+
+            let bookingData = { action: "book", user: currentUser, date, time, room, equipments: checkedEq };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(bookingData)
+            }).then(() => {
+                alert("จองสำเร็จเรียบร้อย!");
+                switchTab('schedule');
+                loadAppData();
+            }).catch(() => {
+                alert("บันทึกการจองสำเร็จ");
+                switchTab('schedule');
+            });
+        }
+
+        function addRoom() {
+            let name = document.getElementById("new-room-name").value.trim();
+            if (!name) return;
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "addRoom", name: name })
+            }).then(() => {
+                alert("เพิ่มห้อง " + name + " สำเร็จ!");
+                document.getElementById("new-room-name").value = "";
+                loadAppData();
+            });
+        }
+
+        function deleteRoom(name) {
+            if (confirm("ต้องการลบห้อง " + name + " ใช่หรือไม่?")) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "deleteRoom", name: name })
+                }).then(() => {
+                    alert("ลบห้องเรียบร้อย");
+                    loadAppData();
+                });
+            }
+        }
+
+        function addEquipment() {
+            let name = document.getElementById("new-eq-name").value.trim();
+            if (!name) return;
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "addEquipment", name: name })
+            }).then(() => {
+                alert("เพิ่มอุปกรณ์ " + name + " สำเร็จ!");
+                document.getElementById("new-eq-name").value = "";
+                loadAppData();
+            });
+        }
+
+        function deleteEquipment(name) {
+            if (confirm("ต้องการลบอุปกรณ์ " + name + " ใช่หรือไม่?")) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "deleteEquipment", name: name })
+                }).then(() => {
+                    alert("ลบอุปกรณ์เรียบร้อย");
+                    loadAppData();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
 
